@@ -18,16 +18,16 @@ app.get("/", (req, res) => {
   res.send("Go to /api/menu for menu");
 });
 
-app.get("/api/menu", (req, res) => {
-  db.findOne({ menu: { $exists: true } })
-    .then((doc) => {
-      if (doc) {
-        res.json(doc.menu);
-      } else {
-        res.status(404).send("Menu not found");
-      }
-    })
-    .catch((err) => {
-      res.status(500).send("Internal Server Error");
-    });
+app.get("/api/menu", async (req, res) => {
+  try {
+    const menu = await db.findOne({ menu: { $exists: true } });
+
+    if (menu && menu.menu) {
+      res.status(200).json(menu.menu);
+    } else {
+      res.status(404).send("Menu not found");
+    }
+  } catch (error) {
+    res.status(500).send("Internal server error");
+  }
 });
