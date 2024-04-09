@@ -1,6 +1,6 @@
 const express = require("express");
 const Datastore = require("nedb-promises");
-
+const fs = require("node:fs");
 const app = express();
 
 const PORT = 8000;
@@ -19,16 +19,28 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/menu", async (req, res) => {
+  const data = fs.readFile();
   try {
-    const menu = await db.findOne({ menu: { $exists: true } });
-    if (menu && menu.menu) {
-      res.status(200).json(menu.menu);
-    } else {
-      res.status(404).send("Menu not found");
-    }
-  } catch (error) {
-    res.status(500).send("Internal server error");
+    const data = fs.readFile(
+      "/js_2023_GhostExperts_AirbeanBackend/menu.json",
+      "utf8"
+    );
+    console.log(data);
+  } catch (err) {
+    console.error(err);
   }
+  // res.send(menu);
+  // try {
+  //   const menu = await db.find({ menu: { $exists: true } });
+
+  //   if (menu && menu.menu) {
+  //     res.status(200).json(menu.menu);
+  //   } else {
+  //     res.status(404).send("Menu not found");
+  //   }
+  // } catch (error) {
+  //   res.status(500).send("Internal server error");
+  // }
 });
 
 app.post("/api/signup", async (req, res) => {
