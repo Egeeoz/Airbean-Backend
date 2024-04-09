@@ -21,7 +21,6 @@ app.get("/", (req, res) => {
 app.get("/api/menu", async (req, res) => {
   try {
     const menu = await db.findOne({ menu: { $exists: true } });
-
     if (menu && menu.menu) {
       res.status(200).json(menu.menu);
     } else {
@@ -31,3 +30,34 @@ app.get("/api/menu", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
+
+app.post("/api/signup", async (req, res) => {
+  const { userName, email, password } = req.body;
+
+  try {
+    const existingUser = await db.findOne({ $or: [{ userName }, { email }] });
+    if (existingUser) {
+      res.status(409).json("Account already exists");
+    } else {
+      const newUser = {
+        userName,
+        email,
+        password,
+        orders: [],
+      };
+
+      const user = await db.insert(newUser);
+      res.status(201).json(user);
+    }
+  } catch (error) {
+    res.status(500).send("Internal server error");
+  }
+});
+
+//user
+//user/orderHistory
+
+//login
+//logout ?
+//menu
+//order
