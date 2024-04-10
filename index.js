@@ -51,10 +51,11 @@ app.get("/api/menu", async (req, res) => {
 app.post("/api/signup", async (req, res) => {
   // deconstructing
   const { userName, email, password } = req.body;
-
   try {
     // Looking for user with email and username
-    const existingUser = await db.findOne({ $or: [{ userName }, { email }] });
+    const existingUser = await db.users.findOne({
+      $or: [{ userName }, { email }],
+    });
     // If user with thoose credentials exists then send message that account already exists
     if (existingUser) {
       res.status(409).json("Account already exists");
@@ -64,10 +65,9 @@ app.post("/api/signup", async (req, res) => {
         userName,
         email,
         password,
-        orders: [],
       };
       // Send the new user info into the database and return the created account
-      const user = await db.insert(newUser);
+      const user = await db.users.insert(newUser);
       res.status(201).json(user);
     }
   } catch (error) {
@@ -114,10 +114,23 @@ app.post("/api/login", async (req, res) => {
 
 // reads menu. and compares if req.body can be found in menu
 app.post("/api/order", async (req, res) => {
-  const { title, price } = req.body;
-  const orderData = { title, price };
-  console.log(orderData);
+  //how the body in postman looks like
+  //   {
+  //     "order": [
+  //         {
+  //             "title": ",
+  //             "price":
+  //         },
+  //         {
+  //             "title": "",
+  //             "price":
+  //         }
+  //     ]
+  // }
+  const { order } = req.body;
+  const orderData = { order };
   let menu;
+  //reading the menu.json and saves it as menu
   fs.readFile("menu.json", "utf8", async (err, data) => {
     if (err) {
       // If there's an error reading the file
@@ -125,54 +138,50 @@ app.post("/api/order", async (req, res) => {
       res.status(500).send("Error reading menu data");
       return;
     }
-    // If the file is read successfully, parse the JSON and send it as response
+
     try {
       const menuData = JSON.parse(data);
       menu = await menuData.menu;
-      // console.log(menu);
-      const orderItems = menu.find(
-        (item) =>
-          item.title === orderData.title && item.price === orderData.price
-      );
-      console.log(orderItems);
-      if (!orderItems) {
+      //checks every menuitem with orderitem for both title and price
+      const orderIsValid = orderData.order.every((orderItem) => {
+        const menuItem = menu.find(
+          (menuItem) =>
+            menuItem.title === orderItem.title &&
+            menuItem.price === orderItem.price
+        );
+        return !!menuItem;
+      });
+
+      // if the order was not correct
+      if (!orderIsValid) {
         res.status(404).send("not found in menu");
         return;
+
+        //if orderIsValid, the order is added to the database
       } else {
-        await db.orders.insert(orderItems);
-        res
-          .status(201)
-          .json({ message: "order added successfully", orderItems });
+        let total = 0;
+        orderData.order.forEach((orderItem) => {
+          total += orderItem.price;
+        });
+        orderData.total = total;
+        await db.orders.insert(orderData);
+        res.status(201).json({
+          message: "order added successfully",
+          orderItems: orderData.order,
+        });
       }
     } catch (error) {
       // If there's an error parsing
       console.error(error);
-      // res.status(500).send("Problem parsing data");
       res.status(500).send("Server problems, no order was added");
     }
   });
-
-  // try {
-  //   const orderData = { title, price };
-  //   const orderItems = menu.find(
-  //     (item) => item.titel === orderData.title && item.titel === orderData.price
-  //   );
-  // if (!orderItems) {
-  //   res.status(404).send("not found in menu");
-  //   return;
-  // } else {
-  //   await db.orders.insert(orderItems);
-  //   res.status(201).json({ message: "order added successfully", orderItems });
-  // }
-  // } catch (error) {
-  //   res.status(500).send("Server problems, no order was added");
-  // }
 });
 
-//user
+//user-
 //user/orderHistory
 
-//login
+//login-
 //logout ?
-//menu
-//order
+//menu-
+//order-
