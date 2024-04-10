@@ -18,29 +18,26 @@ app.get("/", (req, res) => {
   res.send("Go to /api/menu for menu");
 });
 
+//get menu from menu.json and parse it and send it as response.
 app.get("/api/menu", async (req, res) => {
-  const data = fs.readFile();
-  try {
-    const data = fs.readFile(
-      "/js_2023_GhostExperts_AirbeanBackend/menu.json",
-      "utf8"
-    );
-    console.log(data);
-  } catch (err) {
-    console.error(err);
-  }
-  // res.send(menu);
-  // try {
-  //   const menu = await db.find({ menu: { $exists: true } });
+  fs.readFile("menu.json", "utf8", (err, data) => {
+    if (err) {
+      // If there's an error reading the file
+      console.error(err);
+      res.status(500).send("Error reading menu data");
+      return;
+    }
 
-  //   if (menu && menu.menu) {
-  //     res.status(200).json(menu.menu);
-  //   } else {
-  //     res.status(404).send("Menu not found");
-  //   }
-  // } catch (error) {
-  //   res.status(500).send("Internal server error");
-  // }
+    // If the file is read successfully, parse the JSON and send it as response
+    try {
+      const menuData = JSON.parse(data);
+      res.json(menuData);
+    } catch (error) {
+      // If there's an error parsing
+      console.error(error);
+      res.status(500).send("Problem parsing data");
+    }
+  });
 });
 
 app.post("/api/signup", async (req, res) => {
