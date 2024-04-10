@@ -8,7 +8,12 @@ const URL = "127.0.0.1";
 
 app.use(express.json());
 
-const db = new Datastore({ filename: "database.db", autoload: true });
+// const db = new Datastore({ filename: "database.db", autoload: true });
+
+db = {};
+db.users = new Datastore({ filename: "users.db", autoload: true });
+db.orders = new Datastore({ filename: "orders.db", autoload: true });
+db.userOrders = new Datastore({ filename: "userOrders.db", autoload: true });
 
 const server = app.listen(PORT, URL, () => {
   console.log(`listening to port ${PORT}`);
@@ -27,11 +32,14 @@ app.get("/api/menu", async (req, res) => {
       res.status(500).send("Error reading menu data");
       return;
     }
-
     // If the file is read successfully, parse the JSON and send it as response
     try {
       const menuData = JSON.parse(data);
       res.json(menuData);
+      const foundData = menuData.menu.find(
+        (item) => item.title === "Bryggkaffe" && item.price === 39
+      );
+      console.log(foundData);
     } catch (error) {
       // If there's an error parsing
       console.error(error);
@@ -103,6 +111,64 @@ app.post("/api/login", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
+
+// reads menu. and compares if req.body can be found in menu
+app.post("/api/order", async (req, res) => {
+  const { title, price } = req.body;
+  const orderData = { title, price };
+  console.log(orderData);
+  let menu;
+  fs.readFile("menu.json", "utf8", async (err, data) => {
+    if (err) {
+      // If there's an error reading the file
+      console.error(err);
+      res.status(500).send("Error reading menu data");
+      return;
+    }
+    // If the file is read successfully, parse the JSON and send it as response
+    try {
+      const menuData = JSON.parse(data);
+      menu = await menuData.menu;
+      // console.log(menu);
+      const orderItems = menu.find(
+        (item) =>
+          item.title === orderData.title && item.price === orderData.price
+      );
+      console.log(orderItems);
+      if (!orderItems) {
+        res.status(404).send("not found in menu");
+        return;
+      } else {
+        await db.orders.insert(orderItems);
+        res
+          .status(201)
+          .json({ message: "order added successfully", orderItems });
+      }
+    } catch (error) {
+      // If there's an error parsing
+      console.error(error);
+      // res.status(500).send("Problem parsing data");
+      res.status(500).send("Server problems, no order was added");
+    }
+  });
+
+  // try {
+  //   const orderData = { title, price };
+  //   const orderItems = menu.find(
+  //     (item) => item.titel === orderData.title && item.titel === orderData.price
+  //   );
+  // if (!orderItems) {
+  //   res.status(404).send("not found in menu");
+  //   return;
+  // } else {
+  //   await db.orders.insert(orderItems);
+  //   res.status(201).json({ message: "order added successfully", orderItems });
+  // }
+  // } catch (error) {
+  //   res.status(500).send("Server problems, no order was added");
+  // }
+});
+
 //user
 //user/orderHistory
 
