@@ -1,9 +1,2 @@
-{"title":"Bryggkaffe","price":39,"_id":"1FtrETf2yRTUcZ2J"}
-{"title":"Cappuccino","price":49,"_id":"HjYRM1f15E5Ry8I8"}
-{"title":"Cappuccino","price":49,"_id":"IWncun52gb4toMeD"}
-{"title":"Bryggkaffe","price":39,"_id":"J3AFe7Jnn4x4j7CX"}
-{"id":3,"title":"Cappuccino","desc":"Bryggd på månadens bönor.","price":49,"_id":"MpBNwBY649nA1Uz3"}
-{"orders":[{"title":"Bryggkaffe","price":39},{"title":"Cappuccino","price":49}],"_id":"PjnKxG7fi48NVSoG"}
-{"id":1,"title":"Bryggkaffe","desc":"Bryggd på månadens bönor.","price":39,"_id":"cOL5i0ARPTfdCF79"}
-{"order":[{"title":"Bryggkaffe","price":39},{"title":"Cappuccino","price":49}],"total":88,"_id":"ckHj3tesEvkHW07j"}
-{"id":3,"title":"Cappuccino","desc":"Bryggd på månadens bönor.","price":49,"_id":"vVA8PoyNATPj4A8W"}
+{"order":[{"title":"Bryggkaffe","price":39},{"title":"Latte Macchiato","price":49},{"title":"Cortado","price":39},{"title":"Cortado","price":39}],"userId":"","total":166,"_id":"Yzej40AZqRSVVZ0B"}
+{"order":[{"title":"Bryggkaffe","price":39},{"title":"Latte Macchiato","price":49},{"title":"Cortado","price":39},{"title":"Cortado","price":39}],"userId":"ikk1Ip68zJLW3vJl","total":166,"_id":"xOPYVKHGFBedUHTy"}

@@ -127,9 +127,10 @@ app.post("/api/order", async (req, res) => {
   //         }
   //     ]
   // }
-  const { order } = req.body;
-  const orderData = { order };
+  const { order, userId } = req.body;
+  const orderData = { order, userId };
   let menu;
+  console.log(orderData);
   //reading the menu.json and saves it as menu
   fs.readFile("menu.json", "utf8", async (err, data) => {
     if (err) {
@@ -151,7 +152,6 @@ app.post("/api/order", async (req, res) => {
         );
         return !!menuItem;
       });
-
       // if the order was not correct
       if (!orderIsValid) {
         res.status(404).send("not found in menu");
@@ -159,21 +159,36 @@ app.post("/api/order", async (req, res) => {
 
         //if orderIsValid, the order is added to the database
       } else {
+        // if there's any value in userID, it check if there's any user with the given id,
+        if (userId.length) {
+          const existingUser = await db.users.findOne({
+            _id: orderData.userId,
+          });
+          if (!existingUser) {
+            res
+              .status(404)
+              .send("Could not find user, please check userId and try again");
+            return;
+          }
+        }
+        //adds the sum of the total of the order
         let total = 0;
         orderData.order.forEach((orderItem) => {
           total += orderItem.price;
         });
         orderData.total = total;
+        //adds to orders db
         await db.orders.insert(orderData);
         res.status(201).json({
           message: "order added successfully",
           orderItems: orderData.order,
         });
+        return;
       }
     } catch (error) {
-      // If there's an error parsing
       console.error(error);
       res.status(500).send("Server problems, no order was added");
+      return;
     }
   });
 });
