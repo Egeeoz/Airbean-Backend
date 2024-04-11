@@ -98,7 +98,7 @@ app.post("/api/login", async (req, res) => {
 
   try {
     // Find the user with the given credential and save it into an variable
-    const user = await db.findOne(userCredential);
+    const user = await db.users.findOne(userCredential);
     // Check if user password match given user credential
     if (user && user.password == password) {
       // If it matches, log in
@@ -106,6 +106,25 @@ app.post("/api/login", async (req, res) => {
     } else {
       // If it does not match, return message (no login)
       res.status(401).json({ message: "Invalid credentials" });
+    }
+  } catch (error) {
+    res.status(500).send("Internal server error");
+  }
+});
+
+app.get("/api/user/:userId", async (req, res) => {
+  // Storing given user _id from endpoint
+  const userId = req.params.userId;
+
+  try {
+    // Searching for the user with given _id and storing the user info in a variable
+    const user = await db.users.findOne({ _id: userId });
+    // If a user was found with the given _id then return the user information
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      // If there is no user with such _id, return message below
+      res.status(404).send("No user with such ID");
     }
   } catch (error) {
     res.status(500).send("Internal server error");
