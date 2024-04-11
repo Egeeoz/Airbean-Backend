@@ -202,7 +202,7 @@ app.post("/api/order", async (req, res) => {
         //adds to orders db
         await db.orders.insert(orderData);
         res.status(201).json({
-          message: "order added successfully",
+          message: `order added successfully, ETA:${eta} minutes`,
           orderData,
         });
         return;
@@ -228,9 +228,15 @@ app.get("/api/user/:id/orderhistory", async (req, res) => {
     }
     const orderHistoryData = await db.orders.find({ userId: user });
 
+    const summarizedOrders = orderHistoryData.map((order) => ({
+      total: order.total,
+      eta: order.eta || order.ETA, // Handling both 'eta' and 'ETA' cases
+      _id: order._id,
+    }));
+
     res.status(201).send({
       message: "OrderHistory",
-      orders: orderHistoryData,
+      orders: summarizedOrders,
     });
   } catch (error) {
     res.status(500).send("Server problems, try again");
@@ -246,6 +252,8 @@ app.get("/api/user/:id/orderhistory", async (req, res) => {
 
 // orderDate?
 //Få till res på orderhistory mer cleant
+// findone({order.{}})
+
 //"orderHistory": [
 // {
 //   "total": 0,
