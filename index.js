@@ -203,8 +203,7 @@ app.post("/api/order", async (req, res) => {
         await db.orders.insert(orderData);
         res.status(201).json({
           message: "order added successfully",
-          orderItems: orderData.order,
-          eta: orderData.eta,
+          orderData,
         });
         return;
       }
