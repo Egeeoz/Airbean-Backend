@@ -197,8 +197,17 @@ app.post("/api/order", async (req, res) => {
         });
         //random eta 5-30 min
         const eta = _.random(5, 30);
+
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0"); // Months start at 0
+        const day = String(today.getDate()).padStart(2, "0");
+
+        const currentDate = `${year}-${month}-${day}`;
+
         orderData.total = total;
         orderData.eta = eta;
+        orderData.orderDate = currentDate;
         //adds to orders db
         await db.orders.insert(orderData);
         res.status(201).json({
