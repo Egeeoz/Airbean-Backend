@@ -1,6 +1,7 @@
 const express = require("express");
 const Datastore = require("nedb-promises");
 const fs = require("node:fs");
+const _ = require("lodash");
 const app = express();
 
 const PORT = 8000;
@@ -112,7 +113,6 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// reads menu. and compares if req.body can be found in menu
 app.post("/api/order", async (req, res) => {
   //how the body in postman looks like
   //   {
@@ -131,15 +131,14 @@ app.post("/api/order", async (req, res) => {
   const orderData = { order, userId };
   let menu;
   console.log(orderData);
+  // reads menu. and compares if req.body can be found in menu
   //reading the menu.json and saves it as menu
   fs.readFile("menu.json", "utf8", async (err, data) => {
     if (err) {
       // If there's an error reading the file
-      console.error(err);
       res.status(500).send("Error reading menu data");
       return;
     }
-
     try {
       const menuData = JSON.parse(data);
       menu = await menuData.menu;
@@ -176,12 +175,16 @@ app.post("/api/order", async (req, res) => {
         orderData.order.forEach((orderItem) => {
           total += orderItem.price;
         });
+        //random eta 5-30 min
+        const eta = _.random(5, 30);
         orderData.total = total;
+        orderData.eta = eta;
         //adds to orders db
         await db.orders.insert(orderData);
         res.status(201).json({
           message: "order added successfully",
           orderItems: orderData.order,
+          eta: orderData.eta,
         });
         return;
       }
@@ -193,10 +196,42 @@ app.post("/api/order", async (req, res) => {
   });
 });
 
-//user-
-//user/orderHistory
+app.get("/api/user/:id/orderhistory", async (req, res) => {
+  const user = req.params.id;
+  try {
+    const existingUser = await db.users.findOne({
+      _id: user,
+    });
+    if (!existingUser) {
+      res
+        .status(404)
+        .send({ message: "Could not found any user with given id" });
+    }
+    const orderHistoryData = await db.orders.find({ userId: user });
 
+    res.status(201).send({
+      message: "OrderHistory",
+      orders: orderHistoryData,
+    });
+  } catch (error) {
+    res.status(500).send("Server problems, try again");
+  }
+});
+
+//user-
+//user/orderHistory-
 //login-
 //logout ?
 //menu-
 //order-
+
+// orderDate?
+//Få till res på orderhistory mer cleant
+//"orderHistory": [
+// {
+//   "total": 0,
+//   "orderNr": "string",
+//   "orderDate": "string"
+// }
+
+//pusha in userorders till users?
