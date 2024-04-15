@@ -9,8 +9,6 @@ const URL = "127.0.0.1";
 
 app.use(express.json());
 
-// const db = new Datastore({ filename: "database.db", autoload: true });
-
 db = {};
 db.users = new Datastore({ filename: "users.db", autoload: true });
 db.orders = new Datastore({ filename: "orders.db", autoload: true });
@@ -134,23 +132,9 @@ app.get("/api/user/:userId", async (req, res) => {
 
 // reads menu. and compares if req.body can be found in menu
 app.post("/api/order", async (req, res) => {
-  //how the body in postman looks like
-  //   {
-  //     "order": [
-  //         {
-  //             "title": ",
-  //             "price":
-  //         },
-  //         {
-  //             "title": "",
-  //             "price":
-  //         }
-  //     ]
-  // }
   const { order, userId } = req.body;
   const orderData = { order, userId };
   let menu;
-  console.log(orderData);
   // reads menu. and compares if req.body can be found in menu
   //reading the menu.json and saves it as menu
   fs.readFile("menu.json", "utf8", async (err, data) => {
@@ -251,23 +235,3 @@ app.get("/api/user/:id/orderhistory", async (req, res) => {
     res.status(500).send("Server problems, try again");
   }
 });
-
-//user-
-//user/orderHistory-
-//login-
-//logout ?
-//menu-
-//order-
-
-// orderDate?
-//Få till res på orderhistory mer cleant
-// findone({order.{}})
-
-//"orderHistory": [
-// {
-//   "total": 0,
-//   "orderNr": "string",
-//   "orderDate": "string"
-// }
-
-//pusha in userorders till users?
