@@ -100,17 +100,10 @@ This POST method is to order. </br> Ordering requires an userId (_id) which you 
 ## /api/user/orderhistory
 ```
 {
-    "message": "OrderHistory",
-    "orders": [
-        {
-            "total": 88,
-            "eta": 21,
-            "_id": "0xHYoXn7VtlnFAFf"
-        }
-    ]
+    "userId": "ikk1Ip68zJLW3vJl"
 }
 ```
-This POST method is to get order history for an user.</br> The code above is the result of the method.
+This POST method is to get order history for an user.
 </br>
 </br>
 ## /api/user/:userId
