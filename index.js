@@ -17,31 +17,6 @@ const server = app.listen(PORT, URL, () => {
   console.log(`listening to port ${PORT}`);
 });
 
-//get menu from menu.json and parsing it and send it as response.
-app.get("/api/beans/menu", async (req, res) => {
-  fs.readFile("menu.json", "utf8", (err, data) => {
-    if (err) {
-      // If there's an error reading the file
-      console.error(err);
-      res.status(500).send("Error reading menu data");
-      return;
-    }
-    // If the file is read successfully, parse the JSON and send it as response
-    try {
-      const menuData = JSON.parse(data);
-      res.json(menuData);
-      const foundData = menuData.menu.find(
-        (item) => item.title === "Bryggkaffe" && item.price === 39
-      );
-      console.log(foundData);
-    } catch (error) {
-      // If there's an error parsing
-      console.error(error);
-      res.status(500).send("Problem parsing data");
-    }
-  });
-});
-
 app.post("/api/user/signup", async (req, res) => {
   // deconstructing
   const { userName, email, password } = req.body;
@@ -124,6 +99,58 @@ app.get("/api/user/:userId", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
+app.post("/api/user/orderhistory", async (req, res) => {
+  const { userId } = req.body;
+  try {
+    const existingUser = await db.users.findOne({
+      _id: userId,
+    });
+    if (!existingUser) {
+      res
+        .status(404)
+        .send({ message: "Could not found any user with given id" });
+    }
+    const orderHistoryData = await db.orders.find({ userId: userId });
+
+    const summarizedOrders = orderHistoryData.map((order) => ({
+      total: order.total,
+      eta: order.eta,
+      _id: order._id,
+    }));
+
+    res.status(201).send({
+      message: "OrderHistory",
+      orders: summarizedOrders,
+    });
+  } catch (error) {
+    res.status(500).send("Server problems, try again");
+  }
+});
+
+//get menu from menu.json and parsing it and send it as response.
+app.get("/api/beans/menu", async (req, res) => {
+  fs.readFile("menu.json", "utf8", (err, data) => {
+    if (err) {
+      // If there's an error reading the file
+      console.error(err);
+      res.status(500).send("Error reading menu data");
+      return;
+    }
+    // If the file is read successfully, parse the JSON and send it as response
+    try {
+      const menuData = JSON.parse(data);
+      res.json(menuData);
+      const foundData = menuData.menu.find(
+        (item) => item.title === "Bryggkaffe" && item.price === 39
+      );
+      console.log(foundData);
+    } catch (error) {
+      // If there's an error parsing
+      console.error(error);
+      res.status(500).send("Problem parsing data");
+    }
+  });
+});
 
 // reads menu. and compares if req.body can be found in menu
 app.post("/api/beans/order", async (req, res) => {
@@ -201,32 +228,4 @@ app.post("/api/beans/order", async (req, res) => {
       return;
     }
   });
-});
-
-app.post("/api/user/orderhistory", async (req, res) => {
-  const { userId } = req.body;
-  try {
-    const existingUser = await db.users.findOne({
-      _id: userId,
-    });
-    if (!existingUser) {
-      res
-        .status(404)
-        .send({ message: "Could not found any user with given id" });
-    }
-    const orderHistoryData = await db.orders.find({ userId: userId });
-
-    const summarizedOrders = orderHistoryData.map((order) => ({
-      total: order.total,
-      eta: order.eta,
-      _id: order._id,
-    }));
-
-    res.status(201).send({
-      message: "OrderHistory",
-      orders: summarizedOrders,
-    });
-  } catch (error) {
-    res.status(500).send("Server problems, try again");
-  }
 });
