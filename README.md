@@ -2,7 +2,7 @@
 This API allows you to interact with a coffee shop's ordering system. Below you will find the relevant methods and endpoints. 
 </br>
 
-## /api/menu
+## /api/beans/menu
 ```
 {
     "menu": [
@@ -49,7 +49,7 @@ This GET method is to get the menu. </br>The code above is the result of the met
 </br>
 </br>
 
-## /api/signup
+## /api/user/signup
 ```
 {
     "userName": "Mark",
@@ -61,7 +61,7 @@ This POST method is to sign up.
 </br>
 </br>
 
-## /api/login
+## /api/user/login
 ```
 {
     "userName": "Mark",
@@ -78,7 +78,7 @@ This POST method is to sign up.
 This POST method is to Login in to a existing account.</br> Log in is only prohibited with either email and password or username and password.
 </br>
 </br>
-## /api/order
+## /api/beans/order
 ```
 {
     "order": [
@@ -97,7 +97,7 @@ This POST method is to Login in to a existing account.</br> Log in is only prohi
 This POST method is to order. </br> Ordering requires an userId (_id) which you get from signing up.
 </br>
 </br>
-## /api/user/:id/orderhistory
+## /api/user/orderhistory
 ```
 {
     "message": "OrderHistory",
@@ -110,7 +110,7 @@ This POST method is to order. </br> Ordering requires an userId (_id) which you 
     ]
 }
 ```
-This GET method is to get order history for an user.</br> The code above is the result of the method.
+This POST method is to get order history for an user.</br> The code above is the result of the method.
 </br>
 </br>
 ## /api/user/:userId
