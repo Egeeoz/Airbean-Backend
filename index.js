@@ -12,18 +12,13 @@ app.use(express.json());
 db = {};
 db.users = new Datastore({ filename: "users.db", autoload: true });
 db.orders = new Datastore({ filename: "orders.db", autoload: true });
-db.userOrders = new Datastore({ filename: "userOrders.db", autoload: true });
 
 const server = app.listen(PORT, URL, () => {
   console.log(`listening to port ${PORT}`);
 });
 
-app.get("/", (req, res) => {
-  res.send("Go to /api/menu for menu");
-});
-
-//get menu from menu.json and parse it and send it as response.
-app.get("/api/menu", async (req, res) => {
+//get menu from menu.json and parsing it and send it as response.
+app.get("/api/beans/menu", async (req, res) => {
   fs.readFile("menu.json", "utf8", (err, data) => {
     if (err) {
       // If there's an error reading the file
@@ -47,7 +42,7 @@ app.get("/api/menu", async (req, res) => {
   });
 });
 
-app.post("/api/signup", async (req, res) => {
+app.post("/api/user/signup", async (req, res) => {
   // deconstructing
   const { userName, email, password } = req.body;
   try {
@@ -74,7 +69,7 @@ app.post("/api/signup", async (req, res) => {
   }
 });
 
-app.post("/api/login", async (req, res) => {
+app.post("/api/user/login", async (req, res) => {
   // deconstructing
   const { userName, email, password } = req.body;
 
@@ -131,7 +126,7 @@ app.get("/api/user/:userId", async (req, res) => {
 });
 
 // reads menu. and compares if req.body can be found in menu
-app.post("/api/order", async (req, res) => {
+app.post("/api/beans/order", async (req, res) => {
   const { order, userId } = req.body;
   const orderData = { order, userId };
   let menu;
@@ -208,22 +203,22 @@ app.post("/api/order", async (req, res) => {
   });
 });
 
-app.get("/api/user/:id/orderhistory", async (req, res) => {
-  const user = req.params.id;
+app.post("/api/user/orderhistory", async (req, res) => {
+  const { userId } = req.body;
   try {
     const existingUser = await db.users.findOne({
-      _id: user,
+      _id: userId,
     });
     if (!existingUser) {
       res
         .status(404)
         .send({ message: "Could not found any user with given id" });
     }
-    const orderHistoryData = await db.orders.find({ userId: user });
+    const orderHistoryData = await db.orders.find({ userId: userId });
 
     const summarizedOrders = orderHistoryData.map((order) => ({
       total: order.total,
-      eta: order.eta || order.ETA, // Handling both 'eta' and 'ETA' cases
+      eta: order.eta,
       _id: order._id,
     }));
 
